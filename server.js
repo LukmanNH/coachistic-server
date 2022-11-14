@@ -7,6 +7,7 @@ import cors from "cors";
 
 dotenv.config();
 const app = express();
+const port = process.env.PORT;
 
 // db
 mongoose
@@ -22,6 +23,6 @@ app.use(cookieParser());
 // routes
 app.use("/api", authRoutes);
 
-app.listen(8000, () => {
+app.listen(port, () => {
   console.log("Server Connected");
 });
