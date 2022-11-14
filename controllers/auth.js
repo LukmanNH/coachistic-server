@@ -35,5 +35,40 @@ export const signUp = async (req, res) => {
 };
 
 export const signIn = async (req, res) => {
-  const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password)
+      return res.status(400).send("Email and password is required");
+    const userLogin = await User.findOne({ email }).exec();
+
+    // compare
+    const match = await bcrypt.compare(password, userLogin.password);
+    if (!match)
+      return res.status(400).send("Login failed. Credentials incorrect.");
+
+    userLogin.password = undefined;
+    // jwt
+    const token = jwt.sign({ userLogin }, process.env.SECRET_KEY, {
+      expiresIn: "1d",
+    });
+
+    res.cookie("auth-token", token, {
+      httpOnly: true,
+      secure: true,
+    });
+    res.json(userLogin);
+  } catch (error) {
+    console.log(error);
+    res.status(400).send("Login error. Try again!");
+  }
+};
+
+export const logout = async (req, res) => {
+  try {
+    res.clearCookie("token");
+    return res.json({ message: "Signout Success" });
+  } catch (err) {
+    console.log(err);
+  }
 };
