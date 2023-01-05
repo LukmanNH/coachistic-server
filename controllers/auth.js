@@ -40,6 +40,7 @@ export const signIn = async (req, res) => {
 
     if (!email || !password)
       return res.status(400).send("Email and password is required");
+
     const userLogin = await User.findOne({ email }).exec();
 
     // compare
@@ -53,11 +54,12 @@ export const signIn = async (req, res) => {
       expiresIn: "1d",
     });
 
-    res.cookie("auth-token", token, {
-      httpOnly: true,
-      secure: true,
-    });
-    res.json(userLogin);
+    res
+      .cookie("auth_token", token, {
+        httpOnly: true,
+      })
+      .status(200)
+      .json(userLogin);
   } catch (error) {
     console.log(error);
     res.status(400).send("Login error. Try again!");
@@ -66,8 +68,18 @@ export const signIn = async (req, res) => {
 
 export const logout = async (req, res) => {
   try {
-    res.clearCookie("token");
+    res.clearCookie("auth_token");
     return res.json({ message: "Signout Success" });
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+export const currentUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select("-password").exec();
+    console.log("CURRENT_USER", user);
+    return res.json({ ok: true });
   } catch (err) {
     console.log(err);
   }
