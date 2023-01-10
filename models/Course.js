@@ -49,7 +49,7 @@ const courseSchema = new mongoose.Schema(
     },
     price: {
       type: Number,
-      default: 9.99,
+      default: 0,
     },
     image: {},
     category: String,
